@@ -1,5 +1,5 @@
 {
-  "DESIGN_NAME": "basic_npu",
+  "DESIGN_NAME": "basic_tpu",
   "VERILOG_FILES": "dir::src/*.v",
   "CLOCK_PORT": "clk",
   "CLOCK_PERIOD": 10.0,
