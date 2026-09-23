@@ -1,0 +1,30 @@
+name: Generar GDSII con OpenLane
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-gds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Descargar PDK y ejecutar OpenLane
+        run: |
+          docker run --rm \
+            -e PDK_ROOT=/openlane/pdks \
+            -e PDK=sky130A \
+            -e RUN_LINTER=0 \
+            -v ${{ github.workspace }}:/openlane/designs/npu \
+            efabless/openlane:2023.11.23 \
+            bash -c "pip install --no-cache-dir volare && volare fetch --pdk sky130 --metadata-file /openlane/dependencies/tool_metadata.yml && volare enable --pdk sky130 --metadata-file /openlane/dependencies/tool_metadata.yml && ./flow.tcl -design npu -config_file /openlane/designs/npu/config.json"
+
+      - name: Exportar archivo GDSII
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npu-gdsii-layout
+          path: runs/*/results/final/gds/*.gds
